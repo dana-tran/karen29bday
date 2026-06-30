@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Happy Birthday — Pickleball Match</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="static/style.css" />
+</head>
+<body>
+  <div class="screen">
+
+    <header class="titlebar panel">
+      <span class="title" id="titleText">★ BIRTHDAY MATCH ★</span>
+      <span class="score" id="score">SERVE 0/9</span>
+    </header>
+
+    <div class="dialogue panel" id="dialogue">
+      <p id="dialogueText">Pick a square and serve the ball into it!</p>
+    </div>
+
+    <main class="court-wrap">
+      <div class="court" id="court">
+        <!-- the 9 target squares hover over the FAR half of the court -->
+        <div class="far-grid" id="grid"><!-- cells injected by JS --></div>
+
+        <!-- real pickleball court markings -->
+        <div class="line kitchen-far"  aria-hidden="true"></div>
+        <div class="line kitchen-near" aria-hidden="true"></div>
+        <div class="line center-far"   aria-hidden="true"></div>
+        <div class="line center-near"  aria-hidden="true"></div>
+        <div class="net" aria-hidden="true"></div>
+      </div>
+
+      <!-- ball + the trainer (you, from behind) live over the near baseline -->
+      <div class="ball" id="ball" aria-hidden="true"></div>
+      <img class="player" id="player" src="static/images/player_idle.png" alt="" aria-hidden="true" />
+    </main>
+
+    <footer class="footerbar">
+      <button class="btn-link" id="resetBtn" type="button">↺ new game</button>
+      <span class="madewith">made with 💛</span>
+    </footer>
+  </div>
+
+  <!-- WIN OVERLAY -->
+  <div class="overlay" id="winOverlay" hidden>
+    <div class="win-flash" id="winFlash">MATCH WON!</div>
+
+    <div class="prize panel" id="prizeBox" hidden>
+      <div class="prize-burst">★</div>
+      <p class="prize-eyebrow">GRAND PRIZE GET!</p>
+      <p class="prize-amount" id="prizeAmount">$100</p>
+      <p class="prize-sub" id="prizeSub">of pickleball clinics</p>
+      <p class="prize-note" id="prizeNote">Cash it in whenever you want. Just tell me when. 💛</p>
+      <button class="btn" id="closeWin" type="button">YESSS!</button>
+    </div>
+  </div>
+
+  <button class="btn floating-prize" id="viewPrize" type="button" hidden>🏆 VIEW PRIZE</button>
+
+  <script src="static/game.js"></script>
+</body>
+</html>
