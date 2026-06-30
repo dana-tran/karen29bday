@@ -5,9 +5,9 @@
    ============================================================ */
 const CONFIG = {
   playerName: "karen",        // ← your bestie's name
-  prizeAmount: "$100",        // ← the prize headline
-  prizeSub:    "of pickleball clinics",
-  prizeNote:   "please find winry to redeem 💛",
+  prizeAmount: "i love seeing you grow into the person you are today",        // ← the prize headline
+  prizeSub:    "you are so passionate about things you love and i want to help you be the best version of yourself",
+  prizeNote:   "please find winry to redeem your grand prize 💛",
 
   // The 9 squares. Order = top-left → bottom-right.
   // Drop matching photos into  static/images/  named memory1.png ... memory9.png
