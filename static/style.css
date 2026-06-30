@@ -1,0 +1,370 @@
+/* ============================================================
+   Pickleball Birthday Match — pixel / Game-Boy styling
+   Pink court edition.
+   ============================================================ */
+
+:root {
+  --court-pink:      #f58fb6;
+  --court-pink-dark: #e96fa0;
+  --court-line:      #ffffff;
+  --panel:           #ffe9f1;
+  --panel-2:         #ffd2e3;
+  --ink:             #3a1b28;
+  --ink-soft:        #6e3a50;
+  --ball:            #e8f33a;
+  --ball-dark:       #b7c21f;
+  --gold:            #ffc83d;
+  --accent:          #ff5c8a;
+  --bg:              #2a1320;
+}
+
+* { box-sizing: border-box; }
+
+/* Fix: make [hidden] actually win against display rules below
+   (this is what was forcing the MATCH WON! screen to show on load). */
+[hidden] { display: none !important; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  /* faint pixel-grid backdrop */
+  background-image:
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 16px 16px;
+  color: var(--ink);
+  font-family: "Press Start 2P", "Courier New", monospace;
+  -webkit-font-smoothing: none;
+  font-smooth: never;
+  image-rendering: pixelated;
+  min-height: 100vh;
+}
+
+img { image-rendering: pixelated; }
+
+.screen {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 14px 14px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ---- chunky GB-style panel (stepped border) ---- */
+.panel {
+  background: var(--panel);
+  border: 4px solid var(--ink);
+  box-shadow:
+    0 0 0 4px var(--panel),
+    0 0 0 8px var(--ink),
+    6px 10px 0 0 rgba(0,0,0,0.35);
+  padding: 12px;
+}
+
+/* ---- title bar ---- */
+.titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 10px;
+  line-height: 1.5;
+}
+.title { color: var(--accent); letter-spacing: 1px; }
+.score {
+  color: var(--ink);
+  background: var(--gold);
+  border: 3px solid var(--ink);
+  padding: 5px 7px;
+  white-space: nowrap;
+}
+
+/* ---- dialogue box ---- */
+.dialogue { min-height: 64px; }
+.dialogue p {
+  margin: 0;
+  font-size: 10px;
+  line-height: 1.7;
+  color: var(--ink);
+}
+.dialogue p::after { content: " ▾"; color: var(--accent); }
+
+/* ---- court ---- */
+.court-wrap {
+  position: relative;
+}
+.court {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;            /* portrait: court receding away from you */
+  background: var(--court-pink);
+  border: 6px solid var(--court-line);
+  outline: 5px solid var(--ink);
+}
+.court::before {                  /* inner boundary line */
+  content: "";
+  position: absolute;
+  inset: 7px;
+  border: 3px solid var(--court-line);
+  pointer-events: none;
+}
+.net {
+  position: absolute;
+  left: -6px; right: -6px;
+  top: 50%;
+  height: 10px;
+  transform: translateY(-50%);
+  background:
+    repeating-linear-gradient(90deg,
+      var(--court-line) 0 6px,
+      var(--ink) 6px 10px);
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* ---- pickleball court markings ---- */
+.line {
+  position: absolute;
+  background: var(--court-line);
+  z-index: 2;            /* below the net + the floating cards */
+  pointer-events: none;
+}
+/* kitchen / non-volley-zone lines: parallel to the net, one each side */
+.kitchen-far  { left: 7px; right: 7px; height: 4px; top: 33%; }
+.kitchen-near { left: 7px; right: 7px; height: 4px; top: 67%; }
+/* centerlines: split each service half, and STOP at the kitchen (like a real court) */
+.center-far  { width: 4px; left: 50%; transform: translateX(-50%); top: 7px;  bottom: 67%; }
+.center-near { width: 4px; left: 50%; transform: translateX(-50%); top: 67%;  bottom: 7px; }
+
+/* the 9 squares hover over the FAR (top) half of the court */
+.far-grid {
+  position: absolute;
+  top: 5%;
+  left: 8%;
+  right: 8%;
+  height: 42%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 6px;
+  z-index: 4;
+}
+
+/* ---- a court square / memory card ---- */
+.cell {
+  position: relative;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  background: var(--court-pink);
+  box-shadow: inset 0 0 0 3px var(--court-line);
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--ink);
+  overflow: hidden;
+  transition: transform 0.08s steps(2);
+}
+.cell:nth-child(even) { background: #f7a3c2; } /* subtle tile alternation */
+.cell:hover:not(.revealed) { transform: scale(0.96); }
+.cell:focus-visible { outline: 4px solid var(--gold); outline-offset: -4px; }
+
+.cell .qmark {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  color: var(--court-line);
+  text-shadow: 2px 2px 0 var(--court-pink-dark);
+}
+
+/* revealed state */
+.cell.revealed { cursor: default; box-shadow: inset 0 0 0 3px var(--gold); }
+.cell.revealed:hover { transform: none; }
+.cell .face {
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+}
+.cell.revealed .qmark { display: none; }
+.cell.revealed .face { display: flex; }
+
+.cell .face img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+/* placeholder shown until she drops a real photo in */
+.cell .face .placeholder {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-align: center;
+  padding: 4px;
+  font-size: 7px;
+  line-height: 1.6;
+  color: var(--ink);
+}
+.cell .face .placeholder .ph-num { font-size: 16px; color: var(--accent); }
+.cell .face .caption {
+  background: var(--ink);
+  color: #fff;
+  font-size: 6.5px;
+  line-height: 1.5;
+  padding: 4px 3px;
+  text-align: center;
+}
+
+/* pop-in when revealed */
+@keyframes pop {
+  0%   { transform: scale(0.4); }
+  60%  { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+.cell.justRevealed { animation: pop 0.32s steps(4) both; z-index: 4; }
+@keyframes flashWhite { 0%,100% { filter: none; } 50% { filter: brightness(3); } }
+.cell.flash { animation: flashWhite 0.2s steps(2) 2; }
+
+/* ---- the ball ---- */
+.ball {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: var(--ball);
+  border: 3px solid var(--ink);
+  box-shadow: inset -4px -4px 0 0 var(--ball-dark);
+  border-radius: 50%;
+  left: 50%;
+  bottom: 30px;
+  transform: translate(-50%, 0);
+  display: none;
+  z-index: 6;
+  pointer-events: none;
+}
+.ball.live { display: block; }
+
+/* ---- the player sprite (you, from behind) ---- */
+.player {
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 84px;
+  height: auto;
+  image-rendering: pixelated;
+  z-index: 5;
+  pointer-events: none;
+}
+
+/* ---- footer ---- */
+.footerbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 8px;
+  color: var(--panel-2);
+}
+.btn-link {
+  background: none; border: none; cursor: pointer;
+  font-family: inherit; font-size: 8px; color: var(--panel-2);
+  text-decoration: underline; padding: 4px;
+}
+.madewith { color: var(--accent); }
+
+/* ---- buttons ---- */
+.btn {
+  font-family: inherit;
+  font-size: 11px;
+  color: var(--ink);
+  background: var(--gold);
+  border: 4px solid var(--ink);
+  box-shadow: 4px 4px 0 0 var(--ink);
+  padding: 12px 18px;
+  cursor: pointer;
+  letter-spacing: 1px;
+}
+.btn:active { transform: translate(4px, 4px); box-shadow: none; }
+.btn:focus-visible { outline: 4px solid var(--accent); outline-offset: 3px; }
+
+/* ============================================================
+   WIN OVERLAY
+   ============================================================ */
+.overlay {
+  position: fixed; inset: 0;
+  background: rgba(42, 19, 32, 0.92);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 26px;
+  z-index: 50;
+  padding: 20px;
+}
+.win-flash {
+  font-size: 26px;
+  color: var(--gold);
+  text-align: center;
+  letter-spacing: 2px;
+  text-shadow: 4px 4px 0 var(--accent);
+  animation: winflash 0.28s steps(2) infinite;
+}
+@keyframes winflash {
+  0%,100% { color: var(--gold);   transform: scale(1); }
+  50%     { color: #fff;          transform: scale(1.06); }
+}
+
+.prize {
+  text-align: center;
+  max-width: 360px;
+  background: var(--panel);
+}
+.prize-burst {
+  font-size: 30px; color: var(--gold);
+  text-shadow: 3px 3px 0 var(--accent);
+  animation: spinpop 1.2s steps(8) infinite;
+}
+@keyframes spinpop { 0%,100% { transform: rotate(-8deg) scale(1);} 50% { transform: rotate(8deg) scale(1.15);} }
+.prize-eyebrow { font-size: 9px; color: var(--ink-soft); margin: 6px 0 10px; letter-spacing: 1px; }
+.prize-amount  { font-size: 38px; color: var(--accent); margin: 0; text-shadow: 3px 3px 0 var(--gold); }
+.prize-sub     { font-size: 10px; margin: 8px 0 14px; color: var(--ink); }
+.prize-note    { font-size: 9px; line-height: 1.8; color: var(--ink-soft); margin: 0 0 18px; }
+
+.floating-prize {
+  position: fixed;
+  right: 14px; bottom: 14px;
+  z-index: 40;
+  font-size: 9px;
+  padding: 10px 12px;
+}
+
+/* ---- pixel confetti ---- */
+.confetti {
+  position: fixed;
+  top: -16px;
+  width: 12px; height: 12px;
+  z-index: 49;
+  pointer-events: none;
+}
+@keyframes fall {
+  to { transform: translateY(110vh) rotate(360deg); }
+}
+
+/* ---- responsive ---- */
+@media (max-width: 420px) {
+  .title { font-size: 9px; }
+  .win-flash { font-size: 20px; }
+  .prize-amount { font-size: 30px; }
+}
+
+/* ---- respect reduced motion ---- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
